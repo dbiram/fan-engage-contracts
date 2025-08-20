@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info:
+  title: Fan Engage API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: ok
+  /matches:
+    get:
+      summary: List matches
+      responses:
+        '200':
+          description: List of matches
+  /ingest/video:
+    post:
+      summary: Upload a match video (MP4)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Ingested

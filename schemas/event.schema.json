@@ -1,0 +1,12 @@
+{
+  "$id": "https://example.com/schemas/event.schema.json",
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer" },
+    "match_id": { "type": "integer" },
+    "timestamp_s": { "type": "number" },
+    "type": { "type": "string", "enum": ["goal","shot","foul"] },
+    "confidence": { "type": "number" }
+  },
+  "required": ["match_id","timestamp_s","type","confidence"]
+}
