@@ -1,9 +1,10 @@
 openapi: 3.0.3
 info:
   title: Fan Engage API
-  version: 0.1.0
+  version: 0.2.0
 servers:
   - url: http://localhost:8000
+
 paths:
   /health:
     get:
@@ -34,3 +35,69 @@ paths:
       responses:
         '200':
           description: Ingested
+  /analyze/detections:
+    get:
+      summary: Run detection + tracking for a match (synchronous MVP)
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Detection job result (uploaded artifact key)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  match_id: { type: integer }
+                  key: { type: string, description: "MinIO key to Parquet (detections/match_<id>/match_<id>.parquet)" }
+
+  /matches/{match_id}/detections:
+    get:
+      summary: Get detections for a match (YOLO + ByteTrack)
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Array of detection records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Detection'
+
+components:
+  schemas:
+    Detection:
+      type: object
+      description: YOLO detection enriched with ByteTrack stable IDs
+      properties:
+        frame_id:
+          type: integer
+          description: Zero-based frame index (1 fps extraction)
+        filename:
+          type: string
+          description: Frame object key in MinIO
+        class_name:
+          type: string
+          description: YOLO class label (e.g., "person", "ball")
+        confidence:
+          type: number
+          format: float
+          nullable: true
+          description: Detection confidence (0–1), may be null if unavailable
+        x1: { type: number }
+        y1: { type: number }
+        x2: { type: number }
+        y2: { type: number }
+        object_id:
+          type: integer
+          nullable: true
+          description: Stable tracker ID; null if tracker didn’t assign
+      required: [frame_id, filename, class_name, x1, y1, x2, y2]
