@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Fan Engage API
-  version: 0.2.0
+  version: 0.4.0
 servers:
   - url: http://localhost:8000
 
@@ -53,7 +53,6 @@ paths:
                 properties:
                   match_id: { type: integer }
                   key: { type: string, description: "MinIO key to Parquet (detections/match_<id>/match_<id>.parquet)" }
-
   /matches/{match_id}/detections:
     get:
       summary: Get detections for a match (YOLO + ByteTrack)
@@ -71,6 +70,72 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Detection'
+  /teams/assign:
+    post:
+      summary: Assign team_id to player tracks for a match
+      description: >
+        Computes team assignments from jersey embeddings + color histograms and
+        persists `tracks/match_{id}/match_{id}.parquet` to object storage.
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Assignment summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  match_id: { type: integer }
+                  tracks: { type: integer }
+                  by_team:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                required: [match_id, tracks]
+              examples:
+                ok:
+                  value:
+                    match_id: 14
+                    tracks: 12
+                    by_team: { "1": 6, "2": 6 }
+        '500':
+          description: Assignment failed
+  /matches/{match_id}/tracks:
+    get:
+      summary: Get team assignments (tracks) for a match
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of track assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Track'
+              examples:
+                sample:
+                  value:
+                    - match_id: 14
+                      object_id: 7
+                      team_id: 1
+                      n_samples: 8
+                    - match_id: 14
+                      object_id: 12
+                      team_id: 2
+                      n_samples: 8
+        '404':
+          description: Tracks parquet not found
 
 components:
   schemas:
@@ -101,3 +166,22 @@ components:
           nullable: true
           description: Stable tracker ID; null if tracker didn’t assign
       required: [frame_id, filename, class_name, x1, y1, x2, y2]
+    Track:
+      type: object
+      properties:
+        match_id:
+          type: integer
+          example: 14
+        object_id:
+          type: integer
+          description: Stable track id from ByteTrack
+          example: 23
+        team_id:
+          type: integer
+          enum: [1, 2]
+          example: 1
+        n_samples:
+          type: integer
+          description: Number of crop samples used for the assignment
+          example: 8
+      required: [match_id, object_id, team_id]

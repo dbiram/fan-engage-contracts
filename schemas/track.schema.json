@@ -1,0 +1,12 @@
+{
+  "$id": "https://example.com/schemas/track.schema.json",
+  "type": "object",
+  "description": "Team assignment result for a tracked player object",
+  "properties": {
+    "match_id": { "type": "integer" },
+    "object_id": { "type": "integer", "description": "Stable track id from ByteTrack" },
+    "team_id": { "type": "integer", "enum": [1, 2] },
+    "n_samples": { "type": "integer", "description": "Number of crops sampled for assignment" }
+  },
+  "required": ["match_id", "object_id", "team_id"]
+}
