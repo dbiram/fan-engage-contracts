@@ -1,0 +1,45 @@
+{
+  "$id": "https://example.com/schemas/homography.schema.json",
+  "type": "object",
+  "description": "Estimated homography for a video segment mapping image pixels to pitch coordinates",
+  "properties": {
+    "match_id": { "type": "integer" },
+    "segment_index": { "type": "integer" },
+    "frame_start": { "type": "integer" },
+    "frame_end": { "type": "integer" },
+    "model_version": { "type": "string" },
+    "n_points": { "type": "integer" },
+    "n_inliers": { "type": "integer" },
+    "inlier_ratio": { "type": "number" },
+    "H": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "type": "number" },
+        "minItems": 3, "maxItems": 3
+      },
+      "minItems": 3, "maxItems": 3,
+      "description": "3x3 homography mapping [x,y,1] image -> pitch coords"
+    },
+    "keypoints_img": {
+      "type": "array",
+      "description": "Per-segment image-space keypoints (pixels) aggregated across sampled frames",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "n": { "type": "integer", "description": "number of samples aggregated" }
+        },
+        "required": ["name", "x", "y"]
+      }
+    },
+    "keypoints_used": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of landmark names used"
+    }
+  },
+  "required": ["match_id", "segment_index", "frame_start", "frame_end", "H", "n_inliers", "n_points"]
+}
