@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnalyticsPossession",
+  "type": "object",
+  "properties": {
+    "series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "frame_id": { "type": "integer" },
+          "team": { "type": ["integer", "null"] }
+        },
+        "required": ["frame_id", "team"]
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "frames_counted": { "type": "integer" },
+        "percent_by_team": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        }
+      },
+      "required": ["frames_counted", "percent_by_team"]
+    }
+  },
+  "required": ["series", "summary"]
+}

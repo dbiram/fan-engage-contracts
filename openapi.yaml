@@ -186,6 +186,159 @@ paths:
                   $ref: '#/components/schemas/HomographySegment'
         '404':
           description: No homography found
+  /analytics/positions:
+    post:
+      summary: Compute and save positions to analytics bucket
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: bottom_center
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Success
+  /analytics/{match_id}/positions:
+    get:
+      summary: Get cached positions from analytics bucket
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/analytics_positions.schema.json'
+  /analytics/possession:
+    post:
+      summary: Compute and save nearest-ball possession with hysteresis to analytics bucket
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: max_dist_m
+          required: false
+          schema:
+            type: number
+            default: 4.0
+        - in: query
+          name: delta_margin_m
+          required: false
+          schema:
+            type: number
+            default: 0.5
+      responses:
+        '200':
+          description: Success
+  /analytics/{match_id}/possession:
+    get:
+      summary: Get cached possession analysis from analytics bucket
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/analytics_possession.schema.json'
+  /analytics/control_zones:
+    post:
+      summary: Compute and save Voronoi territory share (area %) per team over time to analytics bucket
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: stride
+          required: false
+          schema:
+            type: integer
+            default: 25
+      responses:
+        '200':
+          description: Success
+  /analytics/{match_id}/control_zones:
+    get:
+      summary: Get cached control zones analysis from analytics bucket
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/analytics_control_zones.schema.json'
+  /analytics/momentum:
+    post:
+      summary: Compute and save momentum index from territory (EWMA-smoothed area share) to analytics bucket
+      parameters:
+        - in: query
+          name: match_id
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: stride
+          required: false
+          schema:
+            type: integer
+            default: 25
+        - in: query
+          name: alpha
+          required: false
+          schema:
+            type: number
+            default: 0.1
+      responses:
+        '200':
+          description: Success
+  /analytics/{match_id}/momentum:
+    get:
+      summary: Get cached momentum analysis from analytics bucket
+      parameters:
+        - in: path
+          name: match_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/analytics_momentum.schema.json'
 components:
   schemas:
     Detection:
@@ -194,3 +347,11 @@ components:
       $ref: "./schemas/track.schema.json"
     HomographySegment:
       $ref: "./schemas/homography.schema.json"
+    AnalyticsPositions:
+      $ref: "./schemas/analytics_positions.schema.json"
+    AnalyticsPossession:
+      $ref: "./schemas/analytics_possession.schema.json"
+    AnalyticsControlZones:
+      $ref: "./schemas/analytics_control_zones.schema.json"
+    AnalyticsMomentum:
+      $ref: "./schemas/analytics_momentum.schema.json"
