@@ -339,6 +339,76 @@ paths:
             application/json:
               schema:
                 $ref: './schemas/analytics_momentum.schema.json'
+/jobs/pipeline:
+  post:
+    summary: Create a pipeline job for a match (detection, tracking, analytics)
+    parameters:
+      - in: query
+        name: match_id
+        required: true
+        schema:
+          type: integer
+      - in: query
+        name: conf_thres
+        required: false
+        schema:
+          type: number
+          default: 0.1
+    responses:
+      '200':
+        description: Job created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                job_id:
+                  type: string
+/jobs/{job_id}:
+  get:
+    summary: Get status of a background job
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Job status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: { type: string }
+                status: { type: string }
+                progress: { type: number }
+                note: { type: string }
+                result: { type: object, nullable: true }
+                exc: { type: string, nullable: true }
+                enqueued_at: { type: string, nullable: true }
+                started_at: { type: string, nullable: true }
+                ended_at: { type: string, nullable: true }
+/jobs/{job_id}/cancel:
+  post:
+    summary: Cancel a background job
+    parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Job cancelled
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ok:
+                  type: boolean
 components:
   schemas:
     Detection:
@@ -355,3 +425,34 @@ components:
       $ref: "./schemas/analytics_control_zones.schema.json"
     AnalyticsMomentum:
       $ref: "./schemas/analytics_momentum.schema.json"
+    JobEnqueued:
+      type: object
+      properties:
+        job_id:
+          type: string
+          description: RQ job identifier
+          example: "73ac1664-3490-4e3f-8e68-c9bcabde2d74"
+    JobStatus:
+      type: object
+      properties:
+        id:        { type: string, example: "73ac1664-3490-4e3f-8e68-c9bcabde2d74" }
+        status:    { $ref: '#/components/schemas/JobState' }
+        progress:  { type: integer, minimum: 0, maximum: 100, example: 65 }
+        note:      { type: string, example: "estimating homography" }
+        result:
+          type: object
+          nullable: true
+          description: Present only when status = finished
+          example: { match_id: 12, detections_key: "match_12/match_12.parquet" }
+        exc:
+          type: string
+          nullable: true
+          description: Traceback string when status = failed
+        enqueued_at: { type: string, nullable: true, format: date-time }
+        started_at:  { type: string, nullable: true, format: date-time }
+        ended_at:    { type: string, nullable: true, format: date-time }
+    JobState:
+      type: string
+      enum: [queued, deferred, started, finished, failed, stopped, canceled, scheduled]
+      description: RQ job lifecycle states
+
