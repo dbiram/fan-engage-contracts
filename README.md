@@ -1,24 +1,23 @@
-# Fan Engage — Contracts
+# fan-engage-contract
 
-Source of truth for API and data contracts used across the stack.
+API contract (OpenAPI) for the Fan-Engage project.
 
-## Contents
-- `openapi.yaml` – HTTP interface for `fan-engage-api` (FastAPI)
-- `schemas/` – JSON Schemas for persisted artifacts (e.g., Event, Detection)
+## Scope
+- Ingest & media
+- Detections, teams, homography
+- Analytics: positions, possession, control zones, momentum
+- **Jobs** (Phase 8):
+  - `POST /jobs/pipeline?match_id=...`
+  - `GET /jobs/{job_id}`
+  - `POST /jobs/{job_id}/cancel`
 
-## Why a separate repo?
-Versioned contracts let frontend, API, workers, and ML iterate independently.
-Pin by tag (`v0.x`) to avoid breaking changes.
+## Usage
+- Import the OpenAPI spec into Postman/Insomnia or your client codegen.
+- Keep this repo versioned and tag releases when endpoints change.
 
-## Versioning
-- Follow **semver**:
-  - `MAJOR`: breaking field/route changes
-  - `MINOR`: new endpoints/fields (backwards compatible)
-  - `PATCH`: docs/typos
-
-## Release
-Tag and push:
-```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
+## Related repos
+- API: https://github.com/dbiram/fan-engage-api
+- Workers: https://github.com/dbiram/fan-engage-workers
+- Frontend: https://github.com/dbiram/fan-engage-frontend
+- Infra: https://github.com/dbiram/fan-engage-infra
+- ML: https://github.com/dbiram/fan-engage-ml
